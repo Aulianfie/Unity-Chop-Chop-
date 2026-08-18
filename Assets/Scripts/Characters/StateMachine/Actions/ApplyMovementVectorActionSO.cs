@@ -4,7 +4,7 @@ using UOP1.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(fileName = "ApplyMovementVector", menuName = "State Machines/Actions/Apply Movement Vector")]
 public class ApplyMovementVectorActionSO : StateActionSO<ApplyMovementVectorAction> { }
-
+// ApplyMovementVectorAction 通过 CharacterController.Move() 将 Protagonist 的 movementVector 应用到角色的实际移动上
 public class ApplyMovementVectorAction : StateAction
 {
 	//Component references

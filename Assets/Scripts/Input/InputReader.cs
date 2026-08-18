@@ -26,6 +26,7 @@ public class InputReader : DescriptionBaseSO, GameInput.IGameplayActions, GameIn
 	public event UnityAction DisableMouseControlCameraEvent = delegate { };
 	public event UnityAction StartedRunning = delegate { };
 	public event UnityAction StoppedRunning = delegate { };
+	public event UnityAction DashEvent = delegate { };
 
 	// Shared between menus and dialogues
 	public event UnityAction MoveSelectionEvent = delegate { };
@@ -272,4 +273,14 @@ public class InputReader : DescriptionBaseSO, GameInput.IGameplayActions, GameIn
 	{
 		CloseInventoryEvent.Invoke();
 	}
+
+	public void OnDash(InputAction.CallbackContext context)
+	{
+		if (context.phase == InputActionPhase.Performed)
+		{
+			// Debug.Log("Dash input performed");
+			DashEvent.Invoke();
+		}
+	}
+
 }

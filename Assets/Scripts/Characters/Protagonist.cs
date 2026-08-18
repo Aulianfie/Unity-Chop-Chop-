@@ -18,10 +18,39 @@ public class Protagonist : MonoBehaviour
 	[NonSerialized] public bool jumpInput;
 	[NonSerialized] public bool extraActionInput;
 	[NonSerialized] public bool attackInput;
+	/*
+	movementInput和movementVector的区别：
+	- movementInput：表示玩家的输入方向和强度，通常是一个归一化的向量
+		范围在0到1之间。它反映了玩家希望角色移动的方向和速度。
+	- movementVector：表示角色实际的移动向量，通常是根据movementInput计算得出的。
+		它可能会受到角色的速度、加速度、摩擦
+	*/
 	[NonSerialized] public Vector3 movementInput; //Initial input coming from the Protagonist script
 	[NonSerialized] public Vector3 movementVector; //Final movement vector, manipulated by the StateMachine actions
 	[NonSerialized] public ControllerColliderHit lastHit;
 	[NonSerialized] public bool isRunning; // Used when using the keyboard to run, brings the normalised speed to 1
+	[NonSerialized] public bool dashInput;
+
+	/*
+		public bool HasDashInput => dashInput; 
+		等价于 
+		public bool HasDashInput
+		{
+			get
+			{
+				return dashInput;
+			}
+		}
+		HasDashInput 是一个公开的只读属性。
+		外部读取它时，返回当前的 dashInput。
+		外部不能写 HasDashInput = false，因为它没有 set。
+	*/
+	public bool HasDashInput => dashInput;
+	
+	public void ConsumeDashInput()
+	{
+		dashInput = false;
+	}
 
 	public const float GRAVITY_MULTIPLIER = 5f;
 	public const float MAX_FALL_SPEED = -50f;
@@ -44,6 +73,7 @@ public class Protagonist : MonoBehaviour
 		_inputReader.StartedRunning += OnStartedRunning;
 		_inputReader.StoppedRunning += OnStoppedRunning;
 		_inputReader.AttackEvent += OnStartedAttack;
+		_inputReader.DashEvent += OnDash;
 		//...
 	}
 
@@ -56,6 +86,7 @@ public class Protagonist : MonoBehaviour
 		_inputReader.StartedRunning -= OnStartedRunning;
 		_inputReader.StoppedRunning -= OnStoppedRunning;
 		_inputReader.AttackEvent -= OnStartedAttack;
+		_inputReader.DashEvent -= OnDash;
 		//...
 	}
 
@@ -139,6 +170,12 @@ public class Protagonist : MonoBehaviour
 	private void OnJumpCanceled()
 	{
 		jumpInput = false;
+	}
+
+	private void OnDash()
+	{
+		dashInput = true;
+		Debug.Log($"Dash cached: {dashInput}");
 	}
 
 	private void OnStoppedRunning() => isRunning = false;

@@ -17,13 +17,13 @@ namespace UOP1.StateMachine
 		/// <summary>
 		/// Called every frame the <see cref="StateMachine"/> is in a <see cref="State"/> with this <see cref="StateAction"/>.
 		/// </summary>
-		public abstract void OnUpdate(); // ← 抽象方法（无方法体，子类必须实现）
+		public abstract void OnUpdate(); // OnUpdate 每帧重复调用 ← 抽象方法（无方法体，子类必须实现）
 
 		/// <summary>
 		/// Awake is called when creating a new instance. Use this method to cache the components needed for the action.
 		/// </summary>
 		/// <param name="stateMachine">The <see cref="StateMachine"/> this instance belongs to.</param>
-		public virtual void Awake(StateMachine stateMachine) { } // ← 虚方法（有默认空实现）
+		public virtual void Awake(StateMachine stateMachine) { } // Awake在进入状态时调用 ← 虚方法（有默认空实现）
 
 		public virtual void OnStateEnter() { }
 		public virtual void OnStateExit() { }
