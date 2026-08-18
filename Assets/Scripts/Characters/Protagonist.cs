@@ -13,6 +13,7 @@ public class Protagonist : MonoBehaviour
 
 	private Vector2 _inputVector;
 	private float _previousSpeed;
+	private float _nextDashReadyTime;
 
 	//These fields are read and manipulated by the StateMachine actions
 	[NonSerialized] public bool jumpInput;
@@ -174,8 +175,30 @@ public class Protagonist : MonoBehaviour
 
 	private void OnDash()
 	{
+		if (!IsDashReady)
+			return;
 		dashInput = true;
-		Debug.Log($"Dash cached: {dashInput}");
+	}
+
+	public void StartDashCooldown(float cooldown)
+	{
+		_nextDashReadyTime = Time.time + cooldown;
+	}
+
+	// public bool IsDashReady()
+	// {
+	// 	return Time.time >= _nextDashReadyTime;
+	// }
+
+	/// <summary>
+	/// 只读属性，使用时不加括号，比如：if (_protagonist.IsDashReady)
+	/// </summary>
+	public bool IsDashReady
+	{
+		get
+		{
+			return Time.time >= _nextDashReadyTime;
+		}
 	}
 
 	private void OnStoppedRunning() => isRunning = false;

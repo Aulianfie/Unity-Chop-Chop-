@@ -15,9 +15,11 @@ public class DashMovementActionSO : StateActionSO<DashMovementAction>
 {
     public float Speed => _speed;
     public float InputThreshold  => _inputThreshold;
+    public float Cooldown => _cooldown;
 
     [SerializeField, Min(0f)] private float _speed = 10f;
     [SerializeField, Min(0f)] private float _inputThreshold = 0.05f;
+    [SerializeField, Min(0f)] private float _cooldown = 2f;
 }
 
 public class DashMovementAction : StateAction
@@ -31,6 +33,7 @@ public class DashMovementAction : StateAction
 	{
 		_protagonist = stateMachine.GetComponent<Protagonist>();
 	}
+
     // OnStateEnter() 只在刚进入 Dash 状态时调用一次
 	public override void OnStateEnter()
 	{
@@ -51,6 +54,7 @@ public class DashMovementAction : StateAction
             _dashDirection.Normalize();
         }
         _protagonist.ConsumeDashInput(); // 消费掉 dash 输入，防止重复触发
+        _protagonist.StartDashCooldown(OriginSO.Cooldown); // 开始 dash 冷却
 	}
 
 	public override void OnUpdate()
