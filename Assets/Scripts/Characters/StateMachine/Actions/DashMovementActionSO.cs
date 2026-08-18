@@ -13,13 +13,8 @@ using UOP1.StateMachine.ScriptableObjects;
 	menuName = "State Machines/Actions/Dash Movement")]
 public class DashMovementActionSO : StateActionSO<DashMovementAction>
 {
-    public float Speed => _speed;
-    public float InputThreshold  => _inputThreshold;
-    public float Cooldown => _cooldown;
-
-    [SerializeField, Min(0f)] private float _speed = 10f;
-    [SerializeField, Min(0f)] private float _inputThreshold = 0.05f;
-    [SerializeField, Min(0f)] private float _cooldown = 2f;
+    [SerializeField] private DashConfigSO _config = default;   // ← 唯一配置来源
+    public DashConfigSO Config => _config;
 }
 
 public class DashMovementAction : StateAction
@@ -27,6 +22,7 @@ public class DashMovementAction : StateAction
     private new DashMovementActionSO OriginSO => (DashMovementActionSO)base.OriginSO;
     private Protagonist _protagonist;
 	private Vector3 _dashDirection;
+    private float _elapsed;   // 本轮冲刺已经过时间
 
     // Awake() 的作用是找到挂载到的 Protagonist
 	public override void Awake(StateMachine stateMachine)
@@ -41,7 +37,7 @@ public class DashMovementAction : StateAction
         input.y = 0f; // Ignore vertical input for dashing
 
         // InputThreshold 防止摇杆轻微偏移导致角色在没有明显输入的情况下触发 Dash
-        float thresholdSqr = OriginSO.InputThreshold * OriginSO.InputThreshold;
+        float thresholdSqr = OriginSO.Config.InputThreshold * OriginSO.Config.InputThreshold;
         // 如果玩家输入的移动向量长度大于阈值平方，则更新 dash 方向为当前输入方向
         if(input.sqrMagnitude > thresholdSqr) 
         {
@@ -53,16 +49,27 @@ public class DashMovementAction : StateAction
             _dashDirection.y = 0f;  // 之所以y要设置为0，是因为我们只想在水平面上移动，而不希望角色在垂直方向上移动。
             _dashDirection.Normalize();
         }
+        _protagonist.dashFinished = false;  
+        _elapsed = 0f; // 重置本轮冲刺已经过时间
         _protagonist.ConsumeDashInput(); // 消费掉 dash 输入，防止重复触发
-        _protagonist.StartDashCooldown(OriginSO.Cooldown); // 开始 dash 冷却
+        _protagonist.StartDashCooldown(OriginSO.Config.Cooldown); // 开始 dash 冷却
 	}
 
 	public override void OnUpdate()
 	{
-		Vector3 velocity = _protagonist.movementVector; // 获取当前角色的移动向量
+		// 计算当前冲刺已经过时间的归一化值（0 到 1 之间）
+        _elapsed += Time.deltaTime;
+        float normalizedTime = Mathf.Clamp01(_elapsed / OriginSO.Config.Duration); 
+        if (normalizedTime >= 1f) // 到点结束判定
+            _protagonist.dashFinished = true;
+        // 根据归一化时间从速度曲线中获取当前速度的倍率
+        float multiplier = Mathf.Max(0f, OriginSO.Config.SpeedCurve.Evaluate(normalizedTime));
+        float currentSpeed = OriginSO.Config.PeakSpeed * multiplier;
+        
+        Vector3 velocity = _protagonist.movementVector; // 获取当前角色的移动向量
         // 设置角色的移动向量为 dash 方向乘以速度
-        velocity.x = _dashDirection.x * OriginSO.Speed; 
-        velocity.z = _dashDirection.z * OriginSO.Speed;
+        velocity.x = _dashDirection.x * currentSpeed; 
+        velocity.z = _dashDirection.z * currentSpeed;
         
         _protagonist.movementVector = velocity;
 	}

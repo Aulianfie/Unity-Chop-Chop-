@@ -13,6 +13,4 @@ MonoBehaviour:
   m_Name: DashMovement
   m_EditorClassIdentifier: 
   description: 
-  _speed: 30
-  _inputThreshold: 0.05
-  _cooldown: 1
+  _config: {fileID: 11400000, guid: c1a8dd07884054d40b5a44f55f8894a4, type: 2}

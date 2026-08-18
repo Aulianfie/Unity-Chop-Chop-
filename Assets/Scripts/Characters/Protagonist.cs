@@ -31,6 +31,7 @@ public class Protagonist : MonoBehaviour
 	[NonSerialized] public ControllerColliderHit lastHit;
 	[NonSerialized] public bool isRunning; // Used when using the keyboard to run, brings the normalised speed to 1
 	[NonSerialized] public bool dashInput;
+	[NonSerialized] public bool dashFinished;   // 本轮 Dash 是否已结束
 
 	/*
 		public bool HasDashInput => dashInput; 
